@@ -25,10 +25,10 @@ public partial class Player : CharacterBody3D{
             direction.Y += 1;
         }
         if (Input.IsActionPressed("right")){
-            direction.X += 1;
+            direction.X -= 1;
         }
         if (Input.IsActionPressed("left")){
-            direction.X -= 1;
+            direction.X += 1;
         }
         if (Input.IsActionPressed("up")){
             direction.Z += 1;

@@ -20,29 +20,43 @@ public enum Rarity{
 public partial  class Spawner : Node{
 	
 	private List<CharacterBody3D> enemies;
-	private double sec = 1; 
+    private double maxSpawnTime = 5;
+	private double sec; 
 	private Node mainScene;
+	
+    public Spawner(){}
 
 	public override void _Ready(){
-		mainScene = GetParent();
+        enemies = new List<CharacterBody3D>();
+        sec = maxSpawnTime;
+        mainScene = GetParent();
 	}
 
 	public override void _Process(double delta){
-		
-		if (sec <= 0){
-		   CharacterBody3D node = new CharacterBody3D();
-		   mainScene.AddChild(node);
-		   EnemyType etype = GenerateType();
-		   if (etype == EnemyType.A){
-			   node.SetScript(ResourceLoader.Load("res://src/ZombieShip.cs")); 
-		   }
-		   sec = 5;
-		}else{
-			sec -= delta;
-		}
+        sec -= delta;   
+        LoadEnemyResources();
 	}
 
-	public Spawner(){}
+    private void LoadEnemyResources(){
+    	if (sec <= 0){
+		    EnemyType etype = GenerateType();
+            if (etype == EnemyType.A){
+                CharacterBody3D body = new CharacterBody3D();
+                CollisionShape3D coll = new CollisionShape3D();
+                MeshInstance3D mesh = new MeshInstance3D();
+                mainScene.AddChild(body);
+                body.AddChild(coll);
+                mesh.Mesh = ((Mesh)ResourceLoader.Load("res://assets/Zombieship/Zombieship1.res"));
+                coll.AddChild(mesh);
+                body.SetScript(ResourceLoader.Load("res://src/ZombieShip.cs"));
+
+		   }
+		   sec = maxSpawnTime;
+           GD.Print(sec);
+        }
+    }
+
+
 	
 
 	Enemy SpawnEnemy(EnemyType t){
