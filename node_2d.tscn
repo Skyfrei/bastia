@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://cybpxilaaws1i"]
+
+[ext_resource type="Script" path="res://player.cs" id="1_hnptv"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="CharacterBody2D" type="CharacterBody2D" parent="."]
+script = ExtResource("1_hnptv")
