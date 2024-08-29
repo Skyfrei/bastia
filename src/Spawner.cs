@@ -20,9 +20,11 @@ public enum Rarity{
 public partial  class Spawner : Node{
 	
 	private List<CharacterBody3D> enemies;
+    private int numOfEnemies = 100;
+    private float enemyScale = 1.0f;
     private double maxSpawnTime = 5;
 	private double sec; 
-	private Node mainScene;
+    private Node mainScene;
 	
     public Spawner(){}
 
@@ -44,16 +46,25 @@ public partial  class Spawner : Node{
                 CharacterBody3D body = new CharacterBody3D();
                 CollisionShape3D coll = new CollisionShape3D();
                 MeshInstance3D mesh = new MeshInstance3D();
+
                 mainScene.AddChild(body);
                 body.AddChild(coll);
                 mesh.Mesh = ((Mesh)ResourceLoader.Load("res://assets/Zombieship/Zombieship1.res"));
                 coll.AddChild(mesh);
                 body.SetScript(ResourceLoader.Load("res://src/ZombieShip.cs"));
 
+
 		   }
 		   sec = maxSpawnTime;
-           GD.Print(sec);
         }
+    }
+
+    private void ScaleSpawnedEnemies(){
+        
+    }
+
+    private void DestroyEnemy(){
+
     }
 
 
