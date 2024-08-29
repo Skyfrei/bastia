@@ -2,3 +2,10 @@
 .godot/
 /android/
 /assets
+
+*.csproj
+*.sln
+*.svg
+*.tscn
+*.import
+
