@@ -20,19 +20,24 @@ public partial class Player : CharacterBody3D{
 		critChance = 0.05f;
 		critMult = 1.15f;
 		bullets = new List<Bullet>();
-		p = GetParent().GetNode<CharacterBody3D>("Player");
 
-		for (int i = 0; i < bulletNumber; i++){
-			Bullet b = new Bullet(ref p);
-            p.AddChild(b);
-            bullets.Add(b);
-		}
 	}
 
 	public override void _PhysicsProcess(double delta){
-
+        if (!(bullets.Count == bulletNumber))
+            Reload();
 		TakeInput(delta);
 	}
+
+    private void Reload(){
+        var p = GetParent();
+
+		for (int i = 0; i < bulletNumber; i++){
+			Bullet b = new Bullet();
+            p.AddChild(b);
+            bullets.Add(b);
+		}
+    }
 
 
 	private void TakeInput(double delta){
@@ -57,16 +62,19 @@ public partial class Player : CharacterBody3D{
 		}
 		//Implement being clicked only once
 		if (Input.IsActionPressed("q")){
-			ShootBullet(direction);
+            if (direction == Vector3.Zero)
+                ShootBullet(new Vector3(0, 0, 0.5f));
+            else
+			    ShootBullet(direction);
 		}
-		p.Rotation = new Vector3(direction.X, direction.Y, direction.Z);
+		Rotation = new Vector3(direction.X, direction.Y, direction.Z);
 		MoveAndCollide((float)delta * direction * movspeed);
 	}
 
 	private void ShootBullet(Vector3 flyingDir){
 	  foreach (var bullet in bullets){
 		if (!bullet.IsFlying()){
-			bullet.StartFlying(flyingDir);
+			bullet.StartFlying(flyingDir, this.Position);
 		}
 	  }
 	}
