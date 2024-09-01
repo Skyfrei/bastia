@@ -3,7 +3,7 @@ using Godot;
 using System.Collections.Generic;
 
 enum EnemyType{
-	A,
+	ZOMBIE,
 	B,
 	C,
 	D
@@ -20,52 +20,53 @@ public enum Rarity{
 public partial  class Spawner : Node{
 	
 	private List<CharacterBody3D> enemies;
-    private int numOfEnemies = 100;
-    private float enemyScale = 1.0f;
-    private double maxSpawnTime = 5;
+	private int numOfEnemies = 100;
+	private float enemyScale = 0.5f;
+	private double maxSpawnTime = 5;
 	private double sec; 
-    private Node mainScene;
+	private Node mainScene;
 	
-    public Spawner(){}
+	public Spawner(){}
 
 	public override void _Ready(){
-        enemies = new List<CharacterBody3D>();
-        sec = maxSpawnTime;
-        mainScene = GetParent();
+		enemies = new List<CharacterBody3D>();
+		sec = maxSpawnTime;
+		mainScene = GetParent();
 	}
 
 	public override void _Process(double delta){
-        sec -= delta;   
-        LoadEnemyResources();
+		sec -= delta;   
+		LoadEnemyResources();
 	}
 
-    private void LoadEnemyResources(){
-    	if (sec <= 0){
-		    EnemyType etype = GenerateType();
-            if (etype == EnemyType.A){
-                CharacterBody3D body = new CharacterBody3D();
-                CollisionShape3D coll = new CollisionShape3D();
-                MeshInstance3D mesh = new MeshInstance3D();
-
-                mainScene.AddChild(body);
-                body.AddChild(coll);
-                mesh.Mesh = ((Mesh)ResourceLoader.Load("res://assets/Zombieship/Zombieship1.res"));
-                coll.AddChild(mesh);
+	private void LoadEnemyResources(){
+		if (sec <= 0){
+			EnemyType etype = GenerateType();
+			if (etype == EnemyType.ZOMBIE){
+				CharacterBody3D body = new CharacterBody3D();
                 body.SetScript(ResourceLoader.Load("res://src/ZombieShip.cs"));
-
-
+				
+                CollisionShape3D coll = new CollisionShape3D();
+				MeshInstance3D mesh = new MeshInstance3D();
+                mainScene.AddChild(body);
+				body.AddChild(coll);
+	            coll.Shape = new CapsuleShape3D();
+                mesh.Mesh = ((Mesh)ResourceLoader.Load("res://assets/Zombieship/Zombieship1.res"));
+                body.Scale *= enemyScale;
+                body.AddChild(mesh);
+                enemies.Add(body);
 		   }
 		   sec = maxSpawnTime;
-        }
-    }
+		}
+	}
 
-    private void ScaleSpawnedEnemies(){
-        
-    }
+	private void ScaleSpawnedEnemies(){
+		
+	}
 
-    private void DestroyEnemy(){
+	private void DestroyEnemy(){
 
-    }
+	}
 
 
 	
@@ -74,7 +75,7 @@ public partial  class Spawner : Node{
 		Enemy en;
 		Rarity r = GenerateRarity();
 		switch(t){
-			case EnemyType.A:
+			case EnemyType.ZOMBIE:
 				en = new ZombieShip(r);
 				break;
 
@@ -99,10 +100,10 @@ public partial  class Spawner : Node{
 		int generated = rand.Next(4);
 
 		if (generated == 0){
-			return EnemyType.A;
+			return EnemyType.ZOMBIE;
 		}
 
-		return EnemyType.A;
+		return EnemyType.ZOMBIE;
 	}
 
 	Rarity GenerateRarity(){

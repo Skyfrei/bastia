@@ -1,6 +1,8 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+
 
 public partial class Player : CharacterBody3D{
 	private List<Skill> pow; 
@@ -8,11 +10,15 @@ public partial class Player : CharacterBody3D{
 	private float health;
 	private float critChance;
 	private float critMult;
-	private float atkspd;
 	private ushort level = 1;
 	private float movspeed = 5.0f;
-	private int bulletNumber = 1;
+    private float atkspd = 1.0f;
+    private Stopwatch timer;
+
+	private int bulletNumber = 50;
 	private CharacterBody3D p;
+    
+    private Vector3 direction;
 
 	public override void _Ready(){
 		atkspd = 1.0f;
@@ -20,12 +26,14 @@ public partial class Player : CharacterBody3D{
 		critChance = 0.05f;
 		critMult = 1.15f;
 		bullets = new List<Bullet>();
+        timer = new Stopwatch();
 
 	}
 
 	public override void _PhysicsProcess(double delta){
         if (!(bullets.Count == bulletNumber))
             Reload();
+        timer.Start();
 		TakeInput(delta);
 	}
 
@@ -34,14 +42,19 @@ public partial class Player : CharacterBody3D{
 
 		for (int i = 0; i < bulletNumber; i++){
 			Bullet b = new Bullet();
+            b.type = BulletType.PLAYER;
             p.AddChild(b);
             bullets.Add(b);
 		}
     }
+    
+    public override void _Input(InputEvent @event){
 
+    }
 
 	private void TakeInput(double delta){
-		var direction = Vector3.Zero;
+		direction = Vector3.Zero;
+        bool shot = false;
 		if (Input.IsActionPressed("space")){
 			direction.Y += 1;
 		}
@@ -60,26 +73,38 @@ public partial class Player : CharacterBody3D{
 		if (direction != Vector3.Zero){
 			direction = direction.Normalized();
 		}
+        if (Input.IsActionPressed("q"))
+        {
+            if (ReadyToShoot()){
+                if (direction == Vector3.Zero)
+                    ShootBullet(new Vector3(0, 0, 0.5f));
+                else
+			        ShootBullet(direction);
+            }
+        } 
 		//Implement being clicked only once
-		if (Input.IsActionPressed("q")){
-            if (direction == Vector3.Zero)
-                ShootBullet(new Vector3(0, 0, 0.5f));
-            else
-			    ShootBullet(direction);
-		}
 		Rotation = new Vector3(direction.X, direction.Y, direction.Z);
+        
 		MoveAndCollide((float)delta * direction * movspeed);
 	}
+    
+    private bool ReadyToShoot(){
+        TimeSpan t = timer.Elapsed;
+        if (t.Seconds >= atkspd){
+            timer.Reset();
+            return true;
+        }
+        return false;
+    }
 
 	private void ShootBullet(Vector3 flyingDir){
 	  foreach (var bullet in bullets){
 		if (!bullet.IsFlying()){
-			bullet.StartFlying(flyingDir, this.Position);
+			bullet.StartFlying(flyingDir, Position);
+            return;
 		}
 	  }
 	}
-
-	
 
 	public void AddCharacterSkill(Skill s){
 		pow.Add(s);

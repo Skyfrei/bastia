@@ -1,12 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://d2mh8y8yudrm"]
+[gd_scene load_steps=5 format=3 uid="uid://d2mh8y8yudrm"]
 
 [ext_resource type="Script" path="res://src/Player.cs" id="1_6exoh"]
 [ext_resource type="Script" path="res://src/Camera.cs" id="1_ytccy"]
 [ext_resource type="ArrayMesh" uid="uid://dpfxpu84gnyox" path="res://assets/CharacterShip/Blender-2_92-Baked Animations Intergalactic_Spaceships_Version_2_Baked Animations Intergalactic_Spaceships_Version_2.res" id="2_yvukf"]
 [ext_resource type="Script" path="res://src/Spawner.cs" id="3_bbhtx"]
-
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_wtxfm"]
-radius = 0.6
 
 [node name="Scene" type="Node"]
 
@@ -21,7 +18,6 @@ script = ExtResource("1_6exoh")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
 transform = Transform3D(1, 0, 0, 0, -0.0395039, -0.999219, 0, 0.999219, -0.0395039, 0, 3.72529e-09, -2.98023e-08)
-shape = SubResource("CapsuleShape3D_wtxfm")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Player/CollisionShape3D"]
 transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0.44, 2.54507e-09)

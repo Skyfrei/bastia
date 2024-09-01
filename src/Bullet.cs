@@ -1,53 +1,44 @@
 using Godot;
 
-enum BulletType{
-	NORMAL,
+public enum BulletType{
+    PLAYER,
+    ENEMY
 };
 
-public partial class Bullet : RigidBody3D{
+public partial class Bullet : CharacterBody3D{
 	
-	private BulletType type;
+	public BulletType type;
 	private bool flying = false;
 	private Vector3 flyingDirection;
-	private float bulletSpd = 1.2f;
+	private float bulletSpd = 1.5f;
 	private float scaleFactor = 0.1f;
 
-	private RigidBody3D bullet;
+	private CharacterBody3D bullet;
 	private CollisionShape3D bulletShape;
 	private MeshInstance3D bulletMesh;
 	private CharacterBody3D shooter;
 
-	public Bullet(){
-		GravityScale = 0.0f;
-		Visible = false;
+    
 
+	public Bullet(){
+		Visible = false;
 
 		SetScript(ResourceLoader.Load("res://src/Bullet.cs"));
 		bulletShape = new CollisionShape3D();
-		bulletShape.Scale *= scaleFactor;
 		bulletMesh = new MeshInstance3D();
-		this.AddChild(bulletShape);
+		AddChild(bulletShape);
 		bulletMesh.Mesh = ((Mesh)ResourceLoader.Load("res://assets/bullet.res"));
-		bulletShape.AddChild(bulletMesh);
-		ContactMonitor = true; 
-		MaxContactsReported = 2;
-
-		
+        bulletShape.Shape = new SphereShape3D();
+        Scale *= scaleFactor;
+        AddChild(bulletMesh);
 	}
 	public override void _Ready(){
 
 	}
 
 	public override void _PhysicsProcess(double delta){
-		//CheckCollision
-		if (GetCollidingBodies().Count > 0){
-			flying = false;
-			Visible = false;
-			GD.Print("collided");
-		}
 		if (IsFlying())
 			Fly(delta);
-		//unload meshes
 	}
 	
 	public void StartFlying(Vector3 fldir, Vector3 shooter){
@@ -63,9 +54,22 @@ public partial class Bullet : RigidBody3D{
 	}
 
 	private void Fly(double delta){
-		Position = Position + flyingDirection * (float)delta * bulletSpd;
-		bulletMesh.Position = Position;
-		bulletShape.Position = Position;
+		var collision = MoveAndCollide(flyingDirection * (float)delta * bulletSpd);
+        if (collision != null){
+            if (collision.GetCollisionCount() > 0){
+                var obj = collision.GetCollider(0) as Node3D;
+                if ((obj.Name == "Player" && type == BulletType.PLAYER)||
+                    (obj.Name != "Player" && type == BulletType.ENEMY)){
+                    return;
+                }else{
+                    flying = false;
+		            Visible = false;
+                    GD.Print("bomba");
+                }
+            }
+        }
+        
+///        Position = Position + flyingDirection * (float)delta * bulletSpd;
 	}
 
 	private void ProcBulletEffect(){
