@@ -13,7 +13,6 @@ public partial class Bullet : CharacterBody3D{
 	private float bulletSpd = 1.5f;
 	private float scaleFactor = 0.1f;
 
-	private CharacterBody3D bullet;
 	private CollisionShape3D bulletShape;
 	private MeshInstance3D bulletMesh;
 	private CharacterBody3D shooter;

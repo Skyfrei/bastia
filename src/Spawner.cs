@@ -19,19 +19,20 @@ public enum Rarity{
 
 public partial  class Spawner : Node{
 	
-	private List<CharacterBody3D> enemies;
+	private List<Enemy> enemies;
 	private int numOfEnemies = 100;
-	private float enemyScale = 0.5f;
 	private double maxSpawnTime = 5;
-	private double sec; 
-	private Node mainScene;
-	
+	private double sec;
+
+    private CharacterBody3D body;
+    private CollisionShape3D coll;
+    private MeshInstance3D mesh;
+
 	public Spawner(){}
 
 	public override void _Ready(){
-		enemies = new List<CharacterBody3D>();
+		enemies = new List<Enemy>();
 		sec = maxSpawnTime;
-		mainScene = GetParent();
 	}
 
 	public override void _Process(double delta){
@@ -42,19 +43,12 @@ public partial  class Spawner : Node{
 	private void LoadEnemyResources(){
 		if (sec <= 0){
 			EnemyType etype = GenerateType();
+            Enemy en = SpawnEnemy(etype);
 			if (etype == EnemyType.ZOMBIE){
-				CharacterBody3D body = new CharacterBody3D();
-                body.SetScript(ResourceLoader.Load("res://src/ZombieShip.cs"));
-				
-                CollisionShape3D coll = new CollisionShape3D();
-				MeshInstance3D mesh = new MeshInstance3D();
-                mainScene.AddChild(body);
-				body.AddChild(coll);
-	            coll.Shape = new CapsuleShape3D();
-                mesh.Mesh = ((Mesh)ResourceLoader.Load("res://assets/Zombieship/Zombieship1.res"));
-                body.Scale *= enemyScale;
-                body.AddChild(mesh);
-                enemies.Add(body);
+                
+                GetParent().AddChild(en);
+                enemies.Add(en);
+
 		   }
 		   sec = maxSpawnTime;
 		}
@@ -71,9 +65,9 @@ public partial  class Spawner : Node{
 
 	
 
-	Enemy SpawnEnemy(EnemyType t){
-		Enemy en;
+	Enemy SpawnEnemy(EnemyType t){;
 		Rarity r = GenerateRarity();
+        Enemy en = new ZombieShip(r);
 		switch(t){
 			case EnemyType.ZOMBIE:
 				en = new ZombieShip(r);
@@ -92,7 +86,7 @@ public partial  class Spawner : Node{
 				break;
 
 		}
-		return new ZombieShip(r);
+		return en;
 	}
 
 	EnemyType GenerateType(){
