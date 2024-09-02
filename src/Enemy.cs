@@ -23,6 +23,34 @@ public abstract partial class Enemy : CharacterBody3D{
 		pl = GetParent().GetNode("Player") as CharacterBody3D;
 	}
 
+	public override void _PhysicsProcess(double delta){
+		Rotation = new Vector3(-1 * pl.Rotation.X, -1 * pl.Rotation.Y, -1 * pl.Rotation.Z) * (float)delta;
+	}
+
+	public void Drop(){
+		if (IsDead()){
+			
+		}
+	}
+
+	private bool IsDead(){
+		return health <= 0;
+	}
+
+	Skill GenerateSkill(){
+		var rand = new Random();
+		int generated = rand.Next(4);
+		if (generated == 0){
+			return Skill.S_CRITCHANCE;
+		}else if (generated == 1){
+			return Skill.S_CRITMULT;
+		}else if (generated == 2){
+			return Skill.S_HEALTH_PERC;
+		}else if (generated == 3){
+			return Skill.S_ATTACKSPEED;
+		}
+		return Skill.S_HEALTH_PERC;
+	}
    
 	public Enemy(Rarity r, ushort lvl){
 		level = lvl;
@@ -33,6 +61,7 @@ public abstract partial class Enemy : CharacterBody3D{
 	private void FollowPlayer(){
 		Vector3 p = pl.Position;
 		dir = new Vector3(p.X - Position.X, p.Y - Position.Y, p.Z - Position.Z);
+		 
 	}
 
 	public Vector3 GetDirection(){

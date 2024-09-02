@@ -1,18 +1,19 @@
 using Godot;
 using System;
 
-public partial class ZombieShip : Enemy{
+public partial class SerpentShip : Enemy{
+
 
     private float scaleFactor = 0.25f;
-    private float movSpd = 0.5f;
+    private float movSpd = 0.72f;
 
-	public ZombieShip() : base(Rarity.NORMAL, 2){}
-	public ZombieShip(Rarity r) : base(r, 2){	
-		SetScript(ResourceLoader.Load("res://src/ZombieShip.cs"));
+	public SerpentShip() : base(Rarity.NORMAL, 2){}
+	public SerpentShip(Rarity r) : base(r, 2){	
+		SetScript(ResourceLoader.Load("res://src/SerpentShip.cs"));
 		coll = new CollisionShape3D();
 		mesh = new MeshInstance3D();
 		AddChild(coll);
-		mesh.Mesh = ((Mesh)ResourceLoader.Load("res://assets/Zombieship/Zombieship1.res"));
+		mesh.Mesh = ((Mesh)ResourceLoader.Load("res://assets/Zombieship/Serpentship.res"));
 		coll.Shape = new CapsuleShape3D();
 		Scale *=  scaleFactor;
 		AddChild(mesh);

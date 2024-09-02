@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 enum EnemyType{
 	ZOMBIE,
-	B,
-	C,
-	D
+	SERPENT,
+	AKIRA,
+    BOSS
 }
 
 public enum Rarity{
@@ -21,12 +21,12 @@ public partial  class Spawner : Node{
 	
 	private List<Enemy> enemies;
 	private int numOfEnemies = 100;
-	private double maxSpawnTime = 5;
+	private double maxSpawnTime = 1;
 	private double sec;
 
-    private CharacterBody3D body;
-    private CollisionShape3D coll;
-    private MeshInstance3D mesh;
+	private CharacterBody3D body;
+	private CollisionShape3D coll;
+	private MeshInstance3D mesh;
 
 	public Spawner(){}
 
@@ -43,13 +43,9 @@ public partial  class Spawner : Node{
 	private void LoadEnemyResources(){
 		if (sec <= 0){
 			EnemyType etype = GenerateType();
-            Enemy en = SpawnEnemy(etype);
-			if (etype == EnemyType.ZOMBIE){
-                
-                GetParent().AddChild(en);
-                enemies.Add(en);
-
-		   }
+			Enemy en = SpawnEnemy(etype);
+			GetParent().AddChild(en);
+			enemies.Add(en);
 		   sec = maxSpawnTime;
 		}
 	}
@@ -67,22 +63,22 @@ public partial  class Spawner : Node{
 
 	Enemy SpawnEnemy(EnemyType t){;
 		Rarity r = GenerateRarity();
-        Enemy en = new ZombieShip(r);
+		Enemy en = new ZombieShip(r);
 		switch(t){
 			case EnemyType.ZOMBIE:
 				en = new ZombieShip(r);
 				break;
 
-			case EnemyType.B:
-				en = new ZombieShip(r);
+			case EnemyType.SERPENT:
+				en = new SerpentShip(r);
 				break;
 
-			case EnemyType.C:
-				en = new ZombieShip(r);
+			case EnemyType.AKIRA:
+				en = new AkiraShip(r);
 				break;
 
-			case EnemyType.D:
-				en = new ZombieShip(r);
+			case EnemyType.BOSS:
+				en = new BossShip(r);
 				break;
 
 		}
@@ -95,7 +91,13 @@ public partial  class Spawner : Node{
 
 		if (generated == 0){
 			return EnemyType.ZOMBIE;
-		}
+		}else if (generated == 1){
+			return EnemyType.SERPENT;
+		}else if (generated == 2){
+			return EnemyType.AKIRA;
+		}else{
+            return EnemyType.BOSS;
+        }
 
 		return EnemyType.ZOMBIE;
 	}
