@@ -7,11 +7,12 @@ using System.Diagnostics;
 public partial class Player : CharacterBody3D{
 	private List<Skill> pow; 
 	private List<Bullet> bullets;
-	private float health;
-	private float critChance;
-	private float critMult;
+	public float health;
+	private float critChance = 0.15f;
+	private float critMult = 1.5f;
+	private float attack = 10.0f;
 	private ushort level = 1;
-	private float movspeed = 1.0f;
+	private float movspeed = 3.0f;
 	private float atkspd = 1.0f;
 	private Stopwatch timer;
 
@@ -27,6 +28,7 @@ public partial class Player : CharacterBody3D{
 		critChance = 0.05f;
 		critMult = 1.15f;
 		bullets = new List<Bullet>();
+        pow = new List<Skill>();
 		timer = new Stopwatch();
 		cam = GetParent().GetNode("PlayerCamera") as Camera3D;
 		AddCollisionExceptionWith(GetParent().GetNode("Env"));
@@ -47,7 +49,6 @@ public partial class Player : CharacterBody3D{
 		var end = origin + cam.ProjectRayNormal(mousePos) * 100;
 		var query = PhysicsRayQueryParameters3D.Create(origin,end);
 		query.CollideWithAreas = true;
-		query.HitFromInside = true;
 		var a = new Godot.Collections.Array<Godot.Rid>{GetRid()};
 		query.Exclude = a; 
 
@@ -55,7 +56,6 @@ public partial class Player : CharacterBody3D{
 		if (result.Count <= 0){
 			return Position;
 		}
-		GD.Print(result["position"]);
 		return (Vector3)result["position"];
 	}
 
@@ -75,53 +75,23 @@ public partial class Player : CharacterBody3D{
 	}
 
 	private void TakeInput(double delta){
-		bool shot = false;
 		direction = GetMouse();
-		if (direction.Y >= 0.90f){
-			LookAt(direction, new Vector3(0, 0.90f, 0));            
-		}else
-			LookAt(direction);
-		if (Input.IsActionPressed("space")){
-			direction.Y += 1;
-		}
-		if (Input.IsActionPressed("right")){
-			direction.X -= 1;
-		}
-		if (Input.IsActionPressed("left")){
-			direction.X += 1;
-		}
-		if (Input.IsActionPressed("up")){
-			direction.Z += 1;
-		}
-		if (Input.IsActionPressed("down")){
-			direction.Z -= 1;
-		}
+		LookAt(direction, new Vector3(0, 0.90f, 0));            
 		if (direction != Vector3.Zero){
 			direction = direction.Normalized();
 		}
 		if (Input.IsActionPressed("leftclick")){
-			movspeed += 0.5f;
+			var d = new Vector3(direction.X, 0, direction.Z);
+            MoveAndCollide((float)delta * d  * movspeed);
 			//direction = new Vector3(mousePos.X, mousePos.Y, 0);
 		}
 
 		if (Input.IsActionPressed("q"))
 		{
 			if (ReadyToShoot()){
-				if (direction == Vector3.Zero)
-					ShootBullet(new Vector3(0, 0, 0.5f));
-				else
-					ShootBullet(-1 * direction);
-			}else{
-				movspeed = 1.0f;
-			}
+				ShootBullet(-1 * direction);
+            }
 		} 
-		//Implement being clicked only once
-	    var d = new Vector3(direction.X, 0, direction.Z);
-        if (d.X >= 5.0f)
-            d.X = 5.0f;
-        if (d.Z >= 5.0f)
-            d.Z = 5.0f;
-		MoveAndCollide((float)delta * d  * movspeed);
 	}
 	
 	private bool ReadyToShoot(){
@@ -136,10 +106,41 @@ public partial class Player : CharacterBody3D{
 	private void ShootBullet(Vector3 flyingDir){
 	  foreach (var bullet in bullets){
 		if (!bullet.IsFlying()){
+			bullet.SetDamage(CalculateDamage());
 			bullet.StartFlying(flyingDir, Position);
 			return;
 		}
 	  }
+	}
+
+	private float CalculateDamage(){
+		foreach (var p in pow){
+		   switch(p){
+			   case Skill.S_CRITCHANCE:
+					critChance += 0.05f;
+				   break;
+				case Skill.S_CRITMULT:
+				   critMult += 0.1f;
+				   break;
+				case Skill.S_HEALTH_PERC:
+				   health += 100f;
+				   break;
+				case Skill.S_ATTACKSPEED:
+					atkspd -= 0.01f;
+					break;
+				default:
+					break;
+		   }
+		}
+
+		float dmg = 0.0f;
+		var ran = new Random();
+		bool c = critChance >= ran.NextDouble();
+		if (c){
+			dmg = critMult * attack + attack;
+		}else
+			dmg = attack;
+		return dmg;
 	}
 
 	public void AddCharacterSkill(Skill s){

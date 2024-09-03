@@ -30,7 +30,7 @@ public partial class ZombieShip : Enemy{
 	public override void _PhysicsProcess(double delta){ 
 		var dir = GetDirection();
 
-		var ndir = new Vector3(dir.X + randomg, 0, dir.Z + randomg);
+		var ndir = new Vector3(dir.X + randomg, 1, dir.Z + randomg);
 		base._PhysicsProcess(delta);
 		MoveAndCollide((float)delta * ndir *movSpd);
 	}

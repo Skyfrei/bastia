@@ -19,9 +19,8 @@ public enum Rarity{
 
 public partial  class Spawner : Node{
 	
-	private List<Enemy> enemies;
 	private int numOfEnemies = 100;
-	private double maxSpawnTime = 1;
+	private double maxSpawnTime = 10;
 	private double sec;
 
 	private CharacterBody3D body;
@@ -31,7 +30,6 @@ public partial  class Spawner : Node{
 	public Spawner(){}
 
 	public override void _Ready(){
-		enemies = new List<Enemy>();
 		sec = maxSpawnTime;
 	}
 
@@ -45,7 +43,6 @@ public partial  class Spawner : Node{
 			EnemyType etype = GenerateType();
 			Enemy en = SpawnEnemy(etype);
 			GetParent().AddChild(en);
-			enemies.Add(en);
 		   sec = maxSpawnTime;
 		}
 	}

@@ -5,14 +5,15 @@ using System.Diagnostics;
 
 
 public abstract partial class Enemy : CharacterBody3D{
-	private float health;
-	private float atkspd;
-	private float critChance;
-	private float critMult;
+	public float health = 100.0f;
+	private float atkspd = 1.1f;
+	private float critChance = 0.15f;
+	private float critMult = 1.5f;
 	private List<Skill> pow;
 	private Rarity rarity = Rarity.NORMAL;
 	private ushort level;
 	private EnemyType type;
+	private float attack = 10.0f;
 
 	private List<Bullet> bullets;
 	private Stopwatch timer;
@@ -29,7 +30,9 @@ public abstract partial class Enemy : CharacterBody3D{
 		pl = GetParent().GetNode("Player") as CharacterBody3D;
 		AddCollisionExceptionWith(GetParent().GetNode("Env"));
 		bullets = new List<Bullet>();
+		pow = new List<Skill>();
 		timer = new Stopwatch();
+		health = 100.0f;
 
 	}
 
@@ -46,13 +49,45 @@ public abstract partial class Enemy : CharacterBody3D{
 	private void Shoot(Vector3 flyingDir){
 	  foreach (var bullet in bullets){
 		if (!bullet.IsFlying()){
+			bullet.SetDamage(CalculateDamage());
 			bullet.StartFlying(flyingDir, Position);
 			return;
 		}
 	  }
 	}
 
-	public void Drop(){
+	private float CalculateDamage(){
+		foreach (var p in pow){
+		   switch(p){
+			   case Skill.S_CRITCHANCE:
+					critChance += 0.05f;
+				   break;
+				case Skill.S_CRITMULT:
+				   critMult += 0.1f;
+				   break;
+				case Skill.S_HEALTH_PERC:
+				   health += 100f;
+				   break;
+				case Skill.S_ATTACKSPEED:
+					atkspd -= 0.01f;
+					break;
+				default:
+					break;
+		   }
+		}
+		float dmg = 0.0f;
+		var ran = new Random();
+		bool c = critChance >= ran.NextDouble();
+		if (c){
+			dmg = critMult * attack + attack;
+		}else
+			dmg = attack;
+		return dmg;
+	}
+
+
+
+	public void DropLoot(){
 		if (IsDead()){
 			
 		}
@@ -76,7 +111,7 @@ public abstract partial class Enemy : CharacterBody3D{
 
 		for (int i = 0; i < bulletNumber; i++){
 			Bullet b = new Bullet();
-			b.type = BulletType.PLAYER;
+			b.type = BulletType.ENEMY;
 			p.AddChild(b);
 			bullets.Add(b);
 		}
@@ -104,7 +139,7 @@ public abstract partial class Enemy : CharacterBody3D{
 	
 	private void FollowPlayer(){
 		Vector3 p = pl.Position;
-		dir = new Vector3(p.X - Position.X, p.Y - Position.Y, p.Z - Position.Z);
+		dir = new Vector3(p.X - Position.X, Position.Y, p.Z - Position.Z);
 		 
 	}
 

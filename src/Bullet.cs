@@ -10,12 +10,13 @@ public partial class Bullet : CharacterBody3D{
 	public BulletType type;
 	private bool flying = false;
 	private Vector3 flyingDirection;
-	private float bulletSpd = 1.5f;
+	private float bulletSpd = 1.0f;
 	private float scaleFactor = 0.1f;
 
 	private CollisionShape3D bulletShape;
 	private MeshInstance3D bulletMesh;
 	private CharacterBody3D shooter;
+	private float damage;
 
 	
 
@@ -44,11 +45,17 @@ public partial class Bullet : CharacterBody3D{
 	public void StartFlying(Vector3 fldir, Vector3 shooter){
 		if (!IsFlying()){
 			Position = shooter;
+			fldir.Y = shooter.Y;
 			flyingDirection = fldir;
 			flying = true;
 			Visible = true;
 		}
 	}
+
+	public void SetDamage(float dmg){
+	   damage = dmg;
+	}
+
 	public bool IsFlying(){
 		return flying;
 	}
@@ -57,14 +64,27 @@ public partial class Bullet : CharacterBody3D{
 		var collision = MoveAndCollide(flyingDirection * (float)delta * bulletSpd);
 		if (collision != null){
 			if (collision.GetCollisionCount() > 0){
-				var obj = collision.GetCollider(0) as Node3D;
+				var obj = collision.GetCollider(0) as CharacterBody3D;
+				if (obj.Name == "Env") return;
 				if ((obj.Name == "Player" && type == BulletType.PLAYER)||
 					(obj.Name != "Player" && type == BulletType.ENEMY)){
 					return;
 				}else{
+					if (type == BulletType.PLAYER){
+						Enemy b = (Enemy)obj;
+						b.health -= damage;
+						if (b.health <= 0){
+							b.DropLoot();
+							b.QueueFree();
+						}
+					}else{
+						Player b = (Player)obj;
+						b.health -= damage;
+						if (b.health <=0)
+							GD.Print("dead");
+					}
 					flying = false;
 					Visible = false;
-					GD.Print("bomba");
 				}
 			}
 		}
