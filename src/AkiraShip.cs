@@ -26,8 +26,12 @@ public partial class AkiraShip : Enemy{
 	public  void _Init(){}
 
 	public override void _PhysicsProcess(double delta){ 
-		var dir = GetDirection();
-        base._PhysicsProcess(delta);
-		MoveAndCollide((float)delta * dir * movSpd);
-	}
+	var dir = GetDirection();
+		var random = new Random();
+		double r = (random.NextDouble() * 5.0) - 1.0;
+		float g = (float)r;
+		var ndir = new Vector3(dir.X + g, 0, dir.Z + g);
+		base._PhysicsProcess(delta);
+		MoveAndCollide((float)delta * ndir *movSpd);
+    }
 }

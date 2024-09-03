@@ -1,8 +1,8 @@
 using Godot;
 
 public enum BulletType{
-    PLAYER,
-    ENEMY
+	PLAYER,
+	ENEMY
 };
 
 public partial class Bullet : CharacterBody3D{
@@ -17,7 +17,7 @@ public partial class Bullet : CharacterBody3D{
 	private MeshInstance3D bulletMesh;
 	private CharacterBody3D shooter;
 
-    
+	
 
 	public Bullet(){
 		Visible = false;
@@ -27,12 +27,13 @@ public partial class Bullet : CharacterBody3D{
 		bulletMesh = new MeshInstance3D();
 		AddChild(bulletShape);
 		bulletMesh.Mesh = ((Mesh)ResourceLoader.Load("res://assets/bullet.res"));
-        bulletShape.Shape = new SphereShape3D();
-        Scale *= scaleFactor;
-        AddChild(bulletMesh);
+		bulletShape.Shape = new SphereShape3D();
+		Scale *= scaleFactor;
+		AddChild(bulletMesh);
+
 	}
 	public override void _Ready(){
-
+		AddCollisionExceptionWith(GetParent().GetNode("Env"));
 	}
 
 	public override void _PhysicsProcess(double delta){
@@ -54,20 +55,20 @@ public partial class Bullet : CharacterBody3D{
 
 	private void Fly(double delta){
 		var collision = MoveAndCollide(flyingDirection * (float)delta * bulletSpd);
-        if (collision != null){
-            if (collision.GetCollisionCount() > 0){
-                var obj = collision.GetCollider(0) as Node3D;
-                if ((obj.Name == "Player" && type == BulletType.PLAYER)||
-                    (obj.Name != "Player" && type == BulletType.ENEMY)){
-                    return;
-                }else{
-                    flying = false;
-		            Visible = false;
-                    GD.Print("bomba");
-                }
-            }
-        }
-        
+		if (collision != null){
+			if (collision.GetCollisionCount() > 0){
+				var obj = collision.GetCollider(0) as Node3D;
+				if ((obj.Name == "Player" && type == BulletType.PLAYER)||
+					(obj.Name != "Player" && type == BulletType.ENEMY)){
+					return;
+				}else{
+					flying = false;
+					Visible = false;
+					GD.Print("bomba");
+				}
+			}
+		}
+		
 ///        Position = Position + flyingDirection * (float)delta * bulletSpd;
 	}
 

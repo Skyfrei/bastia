@@ -3,8 +3,8 @@ using System;
 
 public partial class ZombieShip : Enemy{
 
-    private float scaleFactor = 0.25f;
-    private float movSpd = 0.5f;
+	private float scaleFactor = 0.25f;
+	private float movSpd = 0.5f;
 
 	public ZombieShip() : base(Rarity.NORMAL, 2){}
 	public ZombieShip(Rarity r) : base(r, 2){	
@@ -19,14 +19,19 @@ public partial class ZombieShip : Enemy{
 	}
 
 	public override void _Ready(){
-        base._Ready();
-    }
+		base._Ready();
+		var random = new Random();
+		double r = (random.NextDouble() * 5.0) - 1.0;
+		randomg  = (float)r;
+	}
 
 	public  void _Init(){}
 
 	public override void _PhysicsProcess(double delta){ 
 		var dir = GetDirection();
-        base._PhysicsProcess(delta);
-		MoveAndCollide((float)delta * dir * movSpd);
+
+		var ndir = new Vector3(dir.X + randomg, 0, dir.Z + randomg);
+		base._PhysicsProcess(delta);
+		MoveAndCollide((float)delta * ndir *movSpd);
 	}
 }
